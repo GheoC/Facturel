@@ -9,9 +9,9 @@ import com.Facturel.Repository.Roles.RoleRepository;
 
 import com.Facturel.Repository.Users.User;
 import com.Facturel.Repository.Users.UserRepository;
+import com.Facturel.Security.BCryptPasswordEncoder;
 import com.Facturel.Validator.Validations.OnCreate;
 import com.Facturel.Validator.Validations.OnUpdate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -24,20 +24,16 @@ import java.util.stream.Collectors;
 @Validated
 public class UserService {
 
-    private UserRepository userRepository;
-    private RoleRepository roleRepository;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    @Autowired
-    public UserService setUserRepository(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        return this;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    @Autowired
-    public UserService setRoleRepository(RoleRepository roleRepository) {
-        this.roleRepository = roleRepository;
-        return this;
-    }
 
     public List<UserDTO> getUsers()
     {
@@ -47,11 +43,11 @@ public class UserService {
     @Validated(OnCreate.class)
     public void addDefaultUser(@Valid UserDTO userDTO)
     {
-        Role roleUser = roleRepository.findByName("user");
+        Role roleUser = roleRepository.findByName("ROLE_USER");
 
         User user = new User();
         user.setEmail(userDTO.getEmail());
-        user.setPassword(userDTO.getPassword());
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
         user.addRole(roleUser);

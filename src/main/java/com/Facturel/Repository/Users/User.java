@@ -80,7 +80,8 @@ public class User
         return this;
     }
 
-    public Set<Role> getRoles() {
+    public Set<Role> getRoles()
+    {
         return roles;
     }
 
